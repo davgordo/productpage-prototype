@@ -20,21 +20,21 @@ import java.util.ArrayList;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.model.rest.RestBindingMode;
 
-/**
- * Camel routes for the PetStore example
- */
 @ApplicationScoped
 public class ApiRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        // turn on json binding and scan for POJO classes in the model package
+
         restConfiguration().bindingMode(RestBindingMode.json)
                 .bindingPackageScan("com.redhat.bookinfo.productpage");
 
-        rest().openApi().specification("productpage.json").missingOperation("ignore");
+        rest().openApi().specification("productpage-api.json").missingOperation("ignore");
+
+        getContext().getTypeConverterRegistry().addTypeConverters(new ReviewsTypeConverter());
 
         from("direct:getProducts").process(e -> {
 
@@ -50,9 +50,12 @@ public class ApiRoute extends RouteBuilder {
         });
 
         from("direct:getProductReviews")
+                .setVariable("productId", simple("${header.id}"))
                 .removeHeaders("*")
-                .to("rest:get::reviews/1?host=localhost:9090/rest/reviews/1")
-                .log("${body}");
+                .setHeader("id", simple("${variable.productId}"))
+                .to("rest-openapi:reviews-api.json#getProductReviews?host=http://localhost:9080&basePath=/")
+                .unmarshal(new JacksonDataFormat(Reviews.class))
+                .convertBodyTo(ProductReviews.class);
 
     }
 }

@@ -50,6 +50,7 @@
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
+        <apicurio-registry-maven-plugin.version>2.6.4.Final</apicurio-registry-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -251,6 +252,42 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!--
+            This plugin connects with the Service Registry and download
+            the contracts (OpenApi) used in the project -->
+            <plugin>
+                <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-registry-maven-plugin</artifactId>
+                <version>${apicurio-registry-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>download</goal>
+                        </goals>
+                        <configuration>
+                            <registryUrl>https://registry-apicurio-registry.apps.cluster-m22mk.m22mk.sandbox2534.opentlc.com</registryUrl>
+                            <artifacts>
+                                <artifact>
+                                    <groupId>com.redhat</groupId>
+                                    <artifactId>productpage</artifactId>
+                                    <file>${project.basedir}/src/main/openapi/productpage-api.json</file>
+                                    <overwrite>true</overwrite>
+                                </artifact>
+                                <artifact>
+                                    <groupId>com.redhat</groupId>
+                                    <artifactId>reviews</artifactId>
+                                    <file>${project.basedir}/src/main/openapi/reviews-api.json</file>
+                                    <overwrite>true</overwrite>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
         </plugins>
     </build>
 

@@ -1,4 +1,5 @@
 target
 .idea
 .camel-jbang
+src/main/openapi/*
 eclipse-formatter-config.xml
