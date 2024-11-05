@@ -53,7 +53,7 @@ public class ApiRoute extends RouteBuilder {
                 .setVariable("productId", simple("${header.id}"))
                 .removeHeaders("*")
                 .setHeader("id", simple("${variable.productId}"))
-                .to("rest-openapi:reviews-api.json#getProductReviews?host=http://localhost:9080&basePath=/")
+                .to("rest-openapi:reviews-api.json#getProductReviews?host={{openapi.client.reviews.host}}&basePath=/")
                 .unmarshal(new JacksonDataFormat(Reviews.class))
                 .convertBodyTo(ProductReviews.class);
 
